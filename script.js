@@ -81,8 +81,6 @@ const displayMovements = function (movements) {
 	});
 };
 
-displayMovements(account1.movements);
-
 // Currency changing
 
 const eurToUsd = 1.1;
@@ -115,8 +113,6 @@ const calcDisplayBalance = function (movements) {
 	labelBalance.textContent = `${balance}€`;
 };
 
-calcDisplayBalance(account1.movements);
-
 // PIPELINE also known as Chaning where the methods used are all chained in a line
 const totalDepositsUSD = account1.movements
 	.filter((mov) => mov > 0)
@@ -126,25 +122,55 @@ const totalDepositsUSD = account1.movements
 console.log(totalDepositsUSD);
 
 // Calculating the Summary
-const calcDisplaySummary = function (movements) {
+const calcDisplaySummary = function (acc) {
 	// Income
-	const incomes = movements.filter((mov) => mov > 0).reduce((acc, mov) => acc + mov, 0);
+	const incomes = acc.movements.filter((mov) => mov > 0).reduce((acc, mov) => acc + mov, 0);
 
 	labelSumIn.textContent = `${incomes}€`;
 
 	// Outgoing
-	const out = movements.filter((mov) => mov < 0).reduce((acc, mov) => acc + mov, 0);
+	const out = acc.movements.filter((mov) => mov < 0).reduce((acc, mov) => acc + mov, 0);
 
 	labelSumOut.textContent = `${Math.abs(out)}€`;
 
 	// Interest
-	const interest = movements
+	const interest = acc.movements
 		.filter((mov) => mov > 0)
-		.map((deposit) => (deposit * 1.2) / 100)
+		.map((deposit) => (deposit * acc.interestRate) / 100)
 		.filter((mov) => mov > 1)
 		.reduce((acc, int) => acc + int, 0);
 
 	labelSumInterest.textContent = `${interest}€`;
 };
 
-calcDisplaySummary(account1.movements);
+// Event handler
+
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+	//Prevent form from submitting and refreshing
+	e.preventDefault();
+
+	currentAccount = accounts.find((acc) => acc.username === inputLoginUsername.value);
+
+	console.log(currentAccount);
+
+	if (currentAccount?.pin === Number(inputLoginPin.value)) {
+		//Display UI and a welcome message
+		labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+
+		containerApp.style.opacity = 100;
+
+		// Clear the input fields
+		inputLoginUsername.value = inputLoginPin.value = '';
+		inputLoginPin.blur();
+		// Display movements
+		displayMovements(currentAccount.movements);
+
+		// Display Balance
+		calcDisplayBalance(currentAccount.movements);
+
+		// Display Summary
+		calcDisplaySummary(currentAccount);
+	}
+});
