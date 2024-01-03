@@ -183,6 +183,7 @@ btnLogin.addEventListener('click', function (e) {
 	}
 });
 
+// Transfer money to other accounts
 btnTransfer.addEventListener('click', function (e) {
 	//Prevent form from submitting and refreshing
 	e.preventDefault();
@@ -201,4 +202,25 @@ btnTransfer.addEventListener('click', function (e) {
 		// Update the UI
 		updateUI(currentAccount);
 	}
+});
+
+// Closing the account
+
+btnClose.addEventListener('click', function (e) {
+	e.preventDefault();
+	const closeUsername = inputCloseUsername.value;
+	const closePin = Number(inputClosePin.value);
+
+	if (closeUsername === currentAccount.username && closePin === currentAccount.pin) {
+		const index = accounts.findIndex((acc) => acc.username == currentAccount.username);
+
+		// Delete Account
+		accounts.splice(index, 1);
+
+		// Hide UI
+		containerApp.style.opacity = 0;
+	}
+
+	// Emptying the fields where the username and password were used
+	inputCloseUsername.value = inputClosePin.value = '';
 });
