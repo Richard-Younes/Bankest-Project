@@ -108,9 +108,22 @@ const createUsernames = function (accs) {
 createUsernames(accounts);
 
 // Calculating the Balance
-const calcDisplayBalance = function (movements) {
-	const balance = movements.reduce((acc, mov) => acc + mov, 0);
-	labelBalance.textContent = `${balance}€`;
+const calcDisplayBalance = function (acc) {
+	acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+
+	labelBalance.textContent = `${acc.balance}€`;
+};
+
+// This function is used to update the UI
+const updateUI = function (acc) {
+	// Display movements
+	displayMovements(acc.movements);
+
+	// Display Balance
+	calcDisplayBalance(acc);
+
+	// Display Summary
+	calcDisplaySummary(acc);
 };
 
 // PIPELINE also known as Chaning where the methods used are all chained in a line
@@ -164,13 +177,28 @@ btnLogin.addEventListener('click', function (e) {
 		// Clear the input fields
 		inputLoginUsername.value = inputLoginPin.value = '';
 		inputLoginPin.blur();
-		// Display movements
-		displayMovements(currentAccount.movements);
 
-		// Display Balance
-		calcDisplayBalance(currentAccount.movements);
+		// Update the UI
+		updateUI(currentAccount);
+	}
+});
 
-		// Display Summary
-		calcDisplaySummary(currentAccount);
+btnTransfer.addEventListener('click', function (e) {
+	//Prevent form from submitting and refreshing
+	e.preventDefault();
+
+	const amount = Number(inputTransferAmount.value);
+	const receiverAcc = accounts.find((acc) => acc.username === inputTransferTo.value);
+
+	inputTransferAmount.value = inputTransferTo.value = '';
+
+	if (amount > 0 && receiverAcc && currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username) {
+		// Transfer money from the current user
+		currentAccount.movements.push(-amount);
+		// Receiving the money
+		receiverAcc.movements.push(amount);
+
+		// Update the UI
+		updateUI(currentAccount);
 	}
 });
