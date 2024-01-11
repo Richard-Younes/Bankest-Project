@@ -189,6 +189,36 @@ const updateUI = function (acc) {
 	calcDisplaySummary(acc);
 };
 
+// Log out when inactvie function
+const startLogOuttimer = function () {
+	const tick = function () {
+		const min = String(Math.trunc(time / 60)).padStart(2, 0);
+		const sec = String(time % 60).padStart(2, 0);
+
+		// In each iteration print the remaining time
+		labelTimer.textContent = `${min}:${sec}`;
+
+		// When 0 seconds, stop timer and log out user
+		if (time === 0) {
+			labelWelcome.textContent = 'Log in to get started';
+			containerApp.style.opacity = 0;
+			clearInterval(timer);
+		}
+
+		// Decrease 1s
+		time--;
+	};
+
+	// Set time to 5 minutes
+	let time = 300;
+
+	// Call the timer every second
+	tick();
+	timer = setInterval(tick, 1000);
+
+	return timer;
+};
+
 // PIPELINE also known as Chaning where the methods used are all chained in a line
 const totalDepositsUSD = account1.movements
 	.filter((mov) => mov > 0)
@@ -236,7 +266,7 @@ const formatMovementDate = function (date, locale) {
 
 // Event handler
 
-let currentAccount;
+let currentAccount, timer;
 
 btnLogin.addEventListener('click', function (e) {
 	//Prevent form from submitting and refreshing
@@ -276,6 +306,12 @@ btnLogin.addEventListener('click', function (e) {
 		inputLoginUsername.value = inputLoginPin.value = '';
 		inputLoginPin.blur();
 
+		// Logout timer
+		if (timer) {
+			clearInterval(timer);
+		}
+		timer = startLogOuttimer();
+
 		// Update the UI
 		updateUI(currentAccount);
 	}
@@ -303,6 +339,10 @@ btnTransfer.addEventListener('click', function (e) {
 
 		// Update the UI
 		updateUI(currentAccount);
+
+		// Reset the timer
+		clearInterval(timer);
+		timer = startLogOuttimer();
 	}
 });
 
@@ -343,6 +383,10 @@ btnLoan.addEventListener('click', function (e) {
 
 		// Update UI
 		updateUI(currentAccount);
+
+		// Reset the timer
+		clearInterval(timer);
+		timer = startLogOuttimer();
 
 		// Clear input field
 		inputLoanAmount.value = '';
